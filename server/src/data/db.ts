@@ -1,67 +1,76 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
+import mysql from 'mysql2/promise';
 
-const dataDir = path.join(process.cwd(), 'data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL as string,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+if (!process.env.DATABASE_URL) {
+  console.warn("WARNING: DATABASE_URL environment variable is missing.");
 }
 
-const appDb = new Database(path.join(dataDir, 'app.db'));
-const targetDb = new Database(path.join(dataDir, 'mock_target.db'));
-
-appDb.pragma('journal_mode = WAL');
-targetDb.pragma('journal_mode = WAL');
-
-// Initialize app metadata schema
-appDb.exec(`
-  CREATE TABLE IF NOT EXISTS migration_plans (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    version INTEGER NOT NULL,
-    status TEXT NOT NULL,
-    mapping_json TEXT NOT NULL,
-    approver TEXT,
-    approved_at TEXT
-  );
+async function initDb() {
+  // Initialize app metadata schema
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS migration_plans (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      version INT NOT NULL,
+      status VARCHAR(50) NOT NULL,
+      mapping_json TEXT NOT NULL,
+      approver VARCHAR(255),
+      approved_at DATETIME
+    )
+  `);
   
-  CREATE TABLE IF NOT EXISTS runs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    plan_id INTEGER,
-    type TEXT,
-    status TEXT,
-    source_count INTEGER,
-    accepted_count INTEGER,
-    rejected_count INTEGER,
-    skipped_duplicates INTEGER,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS runs (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      plan_id INT,
+      type VARCHAR(50),
+      status VARCHAR(50),
+      source_count INT,
+      accepted_count INT,
+      rejected_count INT,
+      skipped_duplicates INT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 
-  CREATE TABLE IF NOT EXISTS quarantine (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    run_id INTEGER,
-    source_key TEXT,
-    raw_record TEXT,
-    errors TEXT
-  );
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS quarantine (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      run_id INT,
+      source_key VARCHAR(255),
+      raw_record TEXT,
+      errors TEXT
+    )
+  `);
 
-// Initialize target mock schema
-targetDb.exec(`
-  CREATE TABLE IF NOT EXISTS accounts (
-    account_id TEXT PRIMARY KEY,
-    first_name TEXT,
-    last_name TEXT,
-    email TEXT,
-    phone TEXT,
-    status TEXT,
-    created_at TEXT
-  );
+  // Initialize target mock schema
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS accounts (
+      account_id VARCHAR(255) PRIMARY KEY,
+      first_name VARCHAR(255),
+      last_name VARCHAR(255),
+      email VARCHAR(255),
+      phone VARCHAR(255),
+      status VARCHAR(50),
+      created_at VARCHAR(100)
+    )
+  `);
 
-  CREATE TABLE IF NOT EXISTS migration_lineage (
-    record_key TEXT PRIMARY KEY,
-    account_id TEXT,
-    run_id INTEGER
-  );
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS migration_lineage (
+      record_key VARCHAR(255) PRIMARY KEY,
+      account_id VARCHAR(255),
+      run_id INT
+    )
+  `);
+}
 
-export { appDb, targetDb };
+// Fire and forget initialization
+initDb().catch(console.error);
+
+export { pool as db };
