@@ -10,6 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Health endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // 1. Dataset APIs
 app.get('/api/dataset', (req, res) => {
   res.json({ sourceSchema, targetSchema, mockSourceRecords });
