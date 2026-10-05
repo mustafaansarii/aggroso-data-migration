@@ -3,7 +3,7 @@
 This is a full-stack solution for the Aggroso Expert Data Migration assignment.
 
 ## Overview
-This application helps plan and validate the migration of a bounded legacy dataset from a source schema to a target schema using an AI Agent. The agent inspects schemas and data, and proposes declarative transformation rules. The user reviews, dry-runs, and executes the migration into a mock SQLite target.
+This application helps plan and validate the migration of a bounded legacy dataset from a source schema to a target schema using an AI Agent. The agent inspects schemas and data, and proposes declarative transformation rules. The user reviews, dry-runs, and executes the migration into a persistent Aiven MySQL target database.
 
 ## Setup & Running
 
