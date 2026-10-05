@@ -16,7 +16,7 @@ build/
 # Database files
 *.db
 *.sqlite
-data/
+/server/data/
 
 # Logs
 npm-debug.log*

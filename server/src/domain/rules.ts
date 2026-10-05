@@ -118,7 +118,7 @@ export const RuleRegistry: Record<string, RuleDefinition<any>> = {
   map_values: {
     name: 'map_values',
     description: 'Maps an input string to an output string using a dictionary. Fallbacks to default if provided.',
-    paramSchema: z.object({ map: z.record(z.string()), default: z.string().optional() }),
+    paramSchema: z.object({ map: z.record(z.string(), z.string()), default: z.string().optional() }),
     apply: (value, params) => {
       if (!params || !params.map) return { success: false, error: 'Missing map param' };
       const strVal = String(value);
