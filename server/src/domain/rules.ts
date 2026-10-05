@@ -117,13 +117,14 @@ export const RuleRegistry: Record<string, RuleDefinition<any>> = {
   },
   map_values: {
     name: 'map_values',
-    description: 'Maps an input string to an output string using a dictionary. Fallbacks to default if provided.',
-    paramSchema: z.object({ map: z.record(z.string(), z.string()), default: z.string().optional() }),
+    description: 'Maps an input string to an output string using a dictionary. Fallbacks to default if provided. Pass the dictionary as the map param.',
+    paramSchema: z.object({ map: z.record(z.string(), z.string()).optional(), mapping: z.record(z.string(), z.string()).optional(), default: z.string().optional() }),
     apply: (value, params) => {
-      if (!params || !params.map) return { success: false, error: 'Missing map param' };
+      const mapObj = params?.map || params?.mapping;
+      if (!mapObj) return { success: false, error: 'Missing map param' };
       const strVal = String(value);
-      if (params.map[strVal] !== undefined) {
-        return { success: true, value: params.map[strVal] };
+      if (mapObj[strVal] !== undefined) {
+        return { success: true, value: mapObj[strVal] };
       }
       if (params.default !== undefined) {
         return { success: true, value: params.default };
