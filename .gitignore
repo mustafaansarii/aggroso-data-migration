@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables (SECURITY)
+.env
+.env.local
+.env.test
+.env.production
+
+# Build outputs
+dist/
+build/
+
+# Database files
+*.db
+*.sqlite
+data/
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+*.log
+
+# OS & Editor files
+.DS_Store
+.vscode/
+.idea/
