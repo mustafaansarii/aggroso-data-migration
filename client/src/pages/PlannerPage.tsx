@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Bot, Play, Check } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { proposePlan, savePlan, dryRun, executeRun } from '../api';
+import { StatCard } from '../components/StatCard';
+import { QuarantineList } from '../components/QuarantineList';
 
 export default function PlannerPage() {
   const [proposal, setProposal] = useState<any>(null);
@@ -117,37 +119,12 @@ export default function PlannerPage() {
         <div className="bg-white p-4 rounded border">
           <h3 className="font-bold text-lg mb-2">Dry Run Results</h3>
           <div className="grid grid-cols-4 gap-4 mb-4 text-center">
-            <div className="p-3 bg-gray-50 rounded">
-              <div className="text-2xl font-bold">{dryRunResult.source_count}</div>
-              <div className="text-xs text-gray-500 uppercase">Source</div>
-            </div>
-            <div className="p-3 bg-green-50 rounded">
-              <div className="text-2xl font-bold text-green-600">{dryRunResult.accepted_count}</div>
-              <div className="text-xs text-green-600 uppercase">Accepted</div>
-            </div>
-            <div className="p-3 bg-red-50 rounded">
-              <div className="text-2xl font-bold text-red-600">{dryRunResult.rejected_count}</div>
-              <div className="text-xs text-red-600 uppercase">Rejected</div>
-            </div>
+            <StatCard value={dryRunResult.source_count} label="Source" />
+            <StatCard value={dryRunResult.accepted_count} label="Accepted" colorType="success" />
+            <StatCard value={dryRunResult.rejected_count} label="Rejected" colorType="error" />
           </div>
           
-          {dryRunResult.quarantine?.length > 0 && (
-            <div>
-              <h4 className="font-bold text-red-600 mb-2">Quarantine (Rejected Records)</h4>
-              <div className="space-y-2">
-                {dryRunResult.quarantine.map((q: any, i: number) => (
-                  <div key={i} className="border border-red-200 bg-red-50 p-2 rounded text-sm">
-                    <strong>{q.sourceKey}</strong>
-                    <ul className="list-disc pl-5 mt-1 text-red-800">
-                      {q.errors.map((e: any, j: number) => (
-                        <li key={j}>Field '{e.field}' failed rule '{e.rule}': {e.message}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <QuarantineList items={dryRunResult.quarantine} />
         </div>
       )}
 

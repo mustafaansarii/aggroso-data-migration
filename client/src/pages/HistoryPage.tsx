@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getHistory, rollbackRun } from '../api';
 import { RotateCcw } from 'lucide-react';
+import { Badge } from '../components/Badge';
 
 export default function HistoryPage() {
   const queryClient = useQueryClient();
@@ -39,13 +40,7 @@ export default function HistoryPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">v{run.plan_id}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{run.type}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full \${
-                    run.status === 'success' ? 'bg-green-100 text-green-800' :
-                    run.status === 'rolled_back' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {run.status}
-                  </span>
+                  <Badge status={run.status} />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {run.accepted_count} acc / {run.rejected_count} rej / {run.skipped_duplicates || 0} skip
